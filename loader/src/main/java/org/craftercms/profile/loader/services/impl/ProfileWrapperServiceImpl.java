@@ -4,8 +4,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.craftercms.profile.domain.Profile;
 import org.craftercms.profile.domain.Tenant;
 import org.craftercms.profile.domain.Role;
-import org.craftercms.profile.exceptions.AppAuthenticationFailedException;
-import org.craftercms.profile.exceptions.InvalidEmailException;
+import org.craftercms.profile.exceptions.*;
 import org.craftercms.profile.loader.services.ProfileWrapperService;
 import org.craftercms.profile.services.MultiTenantService;
 import org.craftercms.profile.services.ProfileService;
@@ -50,15 +49,30 @@ public class ProfileWrapperServiceImpl implements ProfileWrapperService {
 
 
         String username = RandomStringUtils.randomAlphabetic(randomFromInterval(8, 12));
-        //String password = RandomStringUtils.randomAscii(randomFromInterval(8, 20));
 
         Profile createdProfile = null;
         try {
-            createdProfile =  profileService.createProfile(username, this.password, activeArray[randomFromInterval(1, 10)-1], tenant, testEmail, null, null, null);
+            createdProfile =  profileService.createProfile(username, password, activeArray[randomFromInterval(1, 10)-1], tenant, testEmail,
+                    null, null, null, null, null);
+
+            createdProfile.setVerify(true);
+            createdProfile.setActive(activeArray[randomFromInterval(1, 10)-1]);
+            createdProfile = profileService.updateProfile(createdProfile);
+
         } catch (InvalidEmailException e) {
             // Don't really care about this, continue to try create profiles
             System.out.println(e);
+        } catch (CipherException e)   {
+            // Don't really care about this, continue to try create profiles
+            System.out.println(e);
+        } catch (MailException e)   {
+            // Don't really care about this, continue to try create profiles
+            System.out.println(e);
+        } catch (NoSuchProfileException e)   {
+            // Don't really care about this, continue to try create profiles
+            System.out.println(e);
         }
+
         return createdProfile;
     }
 

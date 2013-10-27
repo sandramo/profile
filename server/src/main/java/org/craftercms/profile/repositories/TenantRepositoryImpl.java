@@ -24,6 +24,7 @@ import org.craftercms.profile.constants.ProfileConstants;
 import org.craftercms.profile.domain.Attribute;
 import org.craftercms.profile.domain.Tenant;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Order;
@@ -46,10 +47,10 @@ public class TenantRepositoryImpl implements TenantRepositoryCustom {
             }
 
             if (sortOrder != null) {
-                query.sort().on(sortingBy, sortOrder.equalsIgnoreCase(ProfileConstants.SORT_ORDER_DESC)? Order
-                    .DESCENDING: Order.ASCENDING);
+                query.with(new Sort(sortOrder.equalsIgnoreCase(ProfileConstants.SORT_ORDER_DESC)? Sort.Direction.DESC:
+                        Sort.Direction.ASC, sortingBy));
             } else {
-                query.sort().on(sortingBy, Order.ASCENDING);
+                query.with(new Sort(Sort.Direction.ASC, sortingBy));
             }
         }
 

@@ -27,6 +27,7 @@ import org.bson.types.ObjectId;
 import org.craftercms.profile.constants.ProfileConstants;
 import org.craftercms.profile.domain.Profile;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Order;
@@ -64,10 +65,10 @@ public class ProfileRepositoryImpl implements ProfileRepositoryCustom {
             }
 
             if (sortOrder != null) {
-                query.sort().on(sorting, sortOrder.equalsIgnoreCase(ProfileConstants.SORT_ORDER_DESC)? Order
-                    .DESCENDING: Order.ASCENDING);
+                query.with(new Sort(sortOrder.equalsIgnoreCase(ProfileConstants.SORT_ORDER_DESC)? Sort.Direction.DESC:
+                        Sort.Direction.ASC, sorting));
             } else {
-                query.sort().on(sorting, Order.ASCENDING);
+                query.with(new Sort(Sort.Direction.ASC, sorting));
             }
         }
 
@@ -223,7 +224,7 @@ public class ProfileRepositoryImpl implements ProfileRepositoryCustom {
 
             while (it.hasNext()) {
                 String key = (String)it.next();
-                String value = (String)attributes.get(key);
+                Object value = attributes.get(key);
                 update.set(ProfileConstants.ATTRIBUTES_DOT + key, value);
             }
         }

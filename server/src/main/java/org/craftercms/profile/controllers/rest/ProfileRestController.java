@@ -16,16 +16,22 @@
  */
 package org.craftercms.profile.controllers.rest;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.craftercms.profile.constants.ProfileConstants;
 import org.craftercms.profile.domain.Profile;
 import org.craftercms.profile.exceptions.CipherException;
@@ -35,6 +41,8 @@ import org.craftercms.profile.exceptions.MailException;
 import org.craftercms.profile.exceptions.NoSuchProfileException;
 import org.craftercms.profile.services.ProfileService;
 import org.craftercms.profile.services.VerifyAccountService;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -52,6 +60,9 @@ public class ProfileRestController {
     
     @Autowired
     private VerifyAccountService verifyAccountService;
+
+
+
 
     /**
      * Create profile
@@ -417,7 +428,33 @@ public class ProfileRestController {
     @ModelAttribute
     public void setAttributes(HttpServletRequest request, @RequestParam(ProfileConstants.APP_TOKEN) String appToken,
                               @PathVariable String profileId, HttpServletResponse response) {
-        profileService.setAttributes(profileId, getAttributeMap(request));
+//
+//        try {
+//            String jsonString = "{\"clickstream\": [ { \"_class\": \"java.util.LinkedHashMap\", \"url\":\"123123123\", \"time\":\"345345345\"}" +
+//                    "]}";
+//            JSONObject json = new JSONObject(jsonString);
+//            System.out.println("JSON=" + json);
+//
+//            LinkedHashMap<String,Serializable> result =
+//                    new ObjectMapper().readValue(jsonString, LinkedHashMap.class);
+//
+//            Object clickstream = result.get("clickstream");
+//            System.out.println("clickstream=" + clickstream);
+//
+//            //HashMap<String, Serializable> test = new HashMap<String, Serializable>();
+//            //test.put("clickstream", clickstream.toString());
+//            profileService.setAttributes(profileId, result);
+//
+//        } catch (JSONException e) {
+//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//        } catch (JsonMappingException e) {
+//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//        } catch (JsonParseException e) {
+//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//        } catch (IOException e) {
+//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//        }
+          profileService.setAttributes(profileId, getAttributeMap(request));
     }
 
     /**
