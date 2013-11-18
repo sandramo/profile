@@ -7,17 +7,22 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
 import org.craftercms.security.api.RequestContext;
 import org.craftercms.security.api.SecurityConstants;
+import org.craftercms.security.authentication.BaseHandler;
 import org.craftercms.security.authentication.ResetPasswordFailureHandler;
 import org.craftercms.security.exception.CrafterSecurityException;
 import org.craftercms.security.exception.PasswordException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ResetPasswordFailureHandlerImpl implements ResetPasswordFailureHandler {
+public class ResetPasswordFailureHandlerImpl extends BaseHandler implements ResetPasswordFailureHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(LoginFailureHandlerImpl.class);
 
     protected String targetUrl;
+    
+    public ResetPasswordFailureHandlerImpl() {
+    	super();
+    }
 
     /**
      * Sets the URL to redirect to.
@@ -30,8 +35,8 @@ public class ResetPasswordFailureHandlerImpl implements ResetPasswordFailureHand
     public void onResetPasswordFailure(Exception e, RequestContext context,
                                        String token) throws CrafterSecurityException, IOException {
         saveException(e, context);
-        updateTargetUrl(token);
-        if (StringUtils.isNotEmpty(targetUrl)) {
+        if (isRedirectRequired && StringUtils.isNotEmpty(targetUrl)) {
+        	updateTargetUrl(token);
             redirectToTargetUrl(context);
         } else {
             sendError(e, context);
@@ -79,6 +84,7 @@ public class ResetPasswordFailureHandlerImpl implements ResetPasswordFailureHand
     }
 
     private void updateTargetUrl(String token) {
+    	
         if (token != null && !token.equals("") && targetUrl.contains("?")) {
             targetUrl = targetUrl + "&token=" + token;
         } else if (token != null && !token.equals("") && !targetUrl.contains("?")) {

@@ -18,8 +18,12 @@ package org.craftercms.security.authentication.impl;
 
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
 import org.craftercms.security.api.RequestContext;
 import org.craftercms.security.authentication.AuthenticationRequiredHandler;
+import org.craftercms.security.authentication.BaseHandler;
 import org.craftercms.security.exception.AuthenticationException;
 import org.craftercms.security.exception.CrafterSecurityException;
 import org.slf4j.Logger;
@@ -38,17 +42,18 @@ import org.springframework.security.web.savedrequest.RequestCache;
  *
  * @author Alfonso Vásquez
  */
-public class AuthenticationRequiredHandlerImpl implements AuthenticationRequiredHandler {
+public class AuthenticationRequiredHandlerImpl extends BaseHandler implements AuthenticationRequiredHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationRequiredHandlerImpl.class);
 
     protected String loginFormUrl;
     protected RequestCache requestCache;
-
+    
     /**
      * Default constructor
      */
     public AuthenticationRequiredHandlerImpl() {
+    	super();
         requestCache = new HttpSessionRequestCache();
     }
 
@@ -78,7 +83,12 @@ public class AuthenticationRequiredHandlerImpl implements AuthenticationRequired
     public void onAuthenticationRequired(AuthenticationException e, RequestContext context) throws
         CrafterSecurityException, IOException {
         saveRequest(context);
-        redirectToLoginForm(context);
+        //response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // Permission not granted
+        if (isRedirectRequired && StringUtils.isNotEmpty(this.loginFormUrl)) {
+        	redirectToLoginForm(context);
+        } else {
+        	sendError(e, context);
+        }
     }
 
     /**
@@ -103,6 +113,17 @@ public class AuthenticationRequiredHandlerImpl implements AuthenticationRequired
         }
 
         context.getResponse().sendRedirect(redirectUrl);
+    }
+    
+    /**
+     * Sends a 401 UNAUTHORIZED error.
+     */
+    protected void sendError(AuthenticationException e, RequestContext context) throws IOException {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Sending 401 UNAUTHORIZED error");
+        }
+        context.getResponse().setContentType("application/json");
+        context.getResponse().sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
     }
 
 }
